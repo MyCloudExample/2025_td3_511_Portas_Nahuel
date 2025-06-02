@@ -9,6 +9,13 @@
 
 /*Segunda consigna: Implementar la consigna a través de una tarea que lea el estado del GPIO 
 *por polling y mostrar el valor de frecuencia por consola.*/
+
+/*----------------------------------------NOTA-------------------------------------------------------------------------------*/
+//SE uso una ventana de 10 segundos la cual fue implementada en la API vTaskDelay(). Esto indicara que la tarea de bloqueara
+//por 10 segundos y luego calculara la frecuencia e impirmira el resultaado en el LCD. Si se tomara una ventana de 1 segundo
+//el error seria mayor.
+/*---------------------------------------------------------------------------------------------------------------------------*/
+
 /*---------------------------------------Definiciones------------------------------------------------------------------------*/
 #define INPUT_PIN 15          // Pin GPIO para la señal de entrada (pin 20 de la placa)
 #define pwm 6               //Pin de salida PWM de 10KHz (pin 9 de la placa)
