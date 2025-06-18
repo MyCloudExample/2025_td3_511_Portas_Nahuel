@@ -6,6 +6,7 @@
 #include "task.h"
 #include "queue.h"
 #include "semphr.h"
+#include "hardware/pwm.h"
 
 /*Consigna 1: Gestionar los recursos del microcontrolador para que **compartiendo el mismo bus de I2C** se pueda ver
 * la temperatura en grados Celsius y la presión en KPa con su unidad en las primeras dos líneas del display LCD.*/
@@ -23,6 +24,7 @@ segura de datos entre tareas*/
 #define I2C         i2c0 //Utilizo el bus 0 del i2c
 #define PIN_SDA     4 //Corresponde al pin 6 de la placa
 #define PIN_SCL     5 //Corresponde al pin 7 de la placa
+#define PIN_PWM     15 //Corresponde al pin 20 de la placa, slice 7, canal B
 #define I2C_FREQ    400000 //Se define una frecuencia de 400 KHz
 #define LCD_ADDR    0x27 //Direccion del LCD
 #define BMP_ADDR    0xFF //Direccion del BMP280
@@ -33,6 +35,14 @@ typedef struct
     float temp;
     uint32_t pre;    
 }data_t;
+//---------------------------------------Estrucutra con las paginas del LCD----------------------------------------------
+ typedef enum
+{
+    SHOW_PAGE_1,
+    SHOW_PAGE_2
+} SHOW_PAGE;
+
+volatile SHOW_PAGE show = SHOW_PAGE_1;
 //------------------------------------------------Manejadores de cola y semaforo-----------------------------------------
 SemaphoreHandle_t sinc;
 QueueHandle_t datos;
@@ -56,9 +66,9 @@ void task_bmp280(void* pvParameters)
         tp.temp = temp_c;
         tp.pre = presion_pa; 
 
-        printf("Desde la tarea BMP280\n");
+        /*printf("Desde la tarea BMP280\n");
         printf("Temperatura= %.2f °C\n",temp_c);
-        printf("Presion= %ld Pa\n",presion_pa);
+        printf("Presion= %ld Pa\n",presion_pa);*/
         xQueueSend(datos, &tp, pdMS_TO_TICKS(10));
         vTaskDelay(pdMS_TO_TICKS(1000)); //tiempo de espera
         xSemaphoreGive(sinc);
@@ -67,19 +77,32 @@ void task_bmp280(void* pvParameters)
 }
 //---------------------------------------------------Impresion de informacion-------------------------------------------
 void task_lcd(void* pvParameters)
-{ char msg1[30], msg2[30];
+{ char msg1[30], msg2[30],msg3[30],msg4[30];
   data_t tplcd;
+  float SetPoint = 25.0;
+
   lcd_set_cursor(2,0);
   lcd_string("Ejecutando tareas:");
   lcd_set_cursor(3,0);
   lcd_string("task_bmp280 task_lcd");
   vTaskDelay(pdMS_TO_TICKS(10));
+  //Inicializo y configuro PWM, frecuencia 1KHz, divisor de frecuencia 1
+  gpio_set_function(PIN_PWM,GPIO_FUNC_PWM);
+  uint slice_num = pwm_gpio_to_slice_num(PIN_PWM);
+  uint canal_num = pwm_gpio_to_channel(PIN_PWM);
+  pwm_config config = pwm_get_default_config();
+  pwm_config_set_clkdiv(&config, 1.0f); 
+  pwm_config_set_wrap(&config, 12499);
+  pwm_init(slice_num, &config, true);
+  pwm_set_chan_level(slice_num,canal_num,20);
 
   while (1)
   {
     if(xSemaphoreTake(sinc,portMAX_DELAY) == pdTRUE)
-    {   
-        xQueueReceive(datos, &tplcd, pdMS_TO_TICKS(100));
+    {  
+      xQueueReceive(datos, &tplcd, pdMS_TO_TICKS(100)); 
+      if(show == SHOW_PAGE_1)
+      {
         sprintf(msg1,"T= %.2f Celcius ",tplcd.temp);
         sprintf(msg2,"P= %ld Pascales ",tplcd.pre);
         //lcd_clear();
@@ -91,6 +114,23 @@ void task_lcd(void* pvParameters)
         /*printf("Desde la tarea LCD\n");
         printf("Temperatura= %.2f °C\n",tplcd.temp);
         printf("Presion= %ld Pa\n",tplcd.pre);*/
+      }
+      if(show == SHOW_PAGE_2)
+      {
+        float error = SetPoint - tplcd.temp;
+        float error_p = error/SetPoint;
+        uint duty = 12499 * error_p;
+        pwm_set_chan_level(slice_num,canal_num,duty);
+        sprintf(msg3,"Error= %.2f ,D=%d",error_p,duty);
+        sprintf(msg4,"SetPoint= %.2f ",SetPoint);
+        lcd_clear();
+        lcd_string(msg3);
+        lcd_set_cursor(1,0);
+        lcd_string(msg4);
+        lcd_set_cursor(3,0);
+        lcd_string("Viendo Pagina 2");
+      }
+        
     }
     vTaskDelay(pdMS_TO_TICKS(1000));
     xSemaphoreGive(sinc);
@@ -109,7 +149,6 @@ void init_general(void* pvParameters)
     gpio_pull_up(PIN_SCL);
     //Inicializo el BMP280
     bmp280_init(I2C);
-    
     //Inicializo y configuro el LCD
     lcd_init(I2C,LCD_ADDR);
     lcd_clear();
@@ -130,8 +169,8 @@ int main()
 {
     stdio_init_all();
 
-    sinc = xSemaphoreCreateMutex();
-    datos = xQueueCreate(5,sizeof(data_t));
+    sinc = xSemaphoreCreateMutex(); //Para sincronizar tareas task_bmp280 y task_lcd
+    datos = xQueueCreate(5,sizeof(data_t)); //Comunica las tareas task_bmp280 y task_lcd
 
     if(sinc == NULL || datos == NULL)
     {
@@ -141,6 +180,7 @@ int main()
     xTaskCreate(task_bmp280,"BMP280",256,NULL,1,NULL);
     xTaskCreate(task_lcd,"LCD",256,NULL,2,NULL);
     xTaskCreate(init_general,"Inicializacion",256,NULL,4,NULL);
+
     xSemaphoreGive(sinc);
 
     vTaskStartScheduler();
