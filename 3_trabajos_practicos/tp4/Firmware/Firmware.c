@@ -25,6 +25,7 @@ segura de datos entre tareas*/
 #define PIN_SDA     4 //Corresponde al pin 6 de la placa
 #define PIN_SCL     5 //Corresponde al pin 7 de la placa
 #define PIN_PWM     15 //Corresponde al pin 20 de la placa, slice 7, canal B
+#define PIN_BUTTON  13 //Corresponde al pin 17 de la placa
 #define I2C_FREQ    400000 //Se define una frecuencia de 400 KHz
 #define LCD_ADDR    0x27 //Direccion del LCD
 #define BMP_ADDR    0xFF //Direccion del BMP280
@@ -138,6 +139,17 @@ void task_lcd(void* pvParameters)
     
   }
 }
+//-----------------------------------------------Interrupcion GPIO--------------------------------------------------------
+void gpio_callback(uint gpio, uint32_t event)
+{BaseType_t THP = pdFALSE;
+ 
+    //Verifico que la interrupcion corresponda con el pin usado, se peude obviar ya que se usa solo un pin
+    if(gpio == PIN_BUTTON  && (event & GPIO_IRQ_EDGE_RISE))
+    {
+      show = SHOW_PAGE_2;
+    }
+    portYIELD_FROM_ISR(THP);
+}
 //----------------------------------Tarea de inicializacion, solo se jecuta una vez y luego se elimina------------------
 void init_general(void* pvParameters)
 {
@@ -147,6 +159,11 @@ void init_general(void* pvParameters)
     gpio_set_function(PIN_SCL, GPIO_FUNC_I2C);
     gpio_pull_up(PIN_SDA);
     gpio_pull_up(PIN_SCL);
+    //Configuro el pin de interrupcion
+    gpio_init(PIN_BUTTON);
+    gpio_set_dir(PIN_BUTTON,GPIO_IN);
+    gpio_pull_down(PIN_BUTTON);
+    gpio_set_irq_enabled_with_callback(PIN_BUTTON,GPIO_IRQ_EDGE_RISE,true,&gpio_callback);
     //Inicializo el BMP280
     bmp280_init(I2C);
     //Inicializo y configuro el LCD
