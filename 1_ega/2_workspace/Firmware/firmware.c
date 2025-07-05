@@ -17,8 +17,8 @@
 #define FREQ        400000 //Frecuencia de 100KHz para el i2c
 #define PIN_PWM     16 //Pin 21 de la placa
 #define PIN_RPM     17 //Pin 22 de la placa
-#define PIN_TRIG    14 //Pin 19 de la placa
-#define PIN_ECHO    15 //Pin 20 de la placa
+#define PIN_TRIG    15 //Pin 19 de la placa
+#define PIN_ECHO    16 //Pin 20 de la placa
 #define PIN_SCK     0 //Pin 1 de la placa
 #define PIN_TX      1 //Pin 2 de la placa
 #define PIN_RX      2 //Pin 4 de la placa
@@ -74,7 +74,6 @@ void task_hcsr04(void *params)
         }
         vTaskDelay(pdMS_TO_TICKS(2000));
     }
-
 }
 //---------------------------------------------------TAREA PARA INICAR EL SETPOINT------------------------------------------------
 void task_SetPoint(void *params)
@@ -105,7 +104,8 @@ int main(void)
 
     // Creacion de tareas
     xTaskCreate(task_init, "Init", 256, NULL, 3, NULL);
-    xTaskCreate(task_SetPoint,"SetPoint",256,NULL,2,NULL);
+    //xTaskCreate(task_SetPoint,"SetPoint",256,NULL,2,NULL);
+    xTaskCreate(task_hcsr04,"MedicionDeDistancia",256,NULL,2,NULL);
 
     // Arranca el scheduler
     vTaskStartScheduler();
