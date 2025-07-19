@@ -15,7 +15,6 @@
 #include "pff.h"
 #include "diskio.h"
 #include "string.h"
-
 /*-------------------------------------DEFINICION DE PINES PARA EL PROYECTO-------------------------------------------------*/
 #define PIN_SDA     8 //Pin 11 de la placa
 #define PIN_SCL     9 //Pin 12 de la placa
