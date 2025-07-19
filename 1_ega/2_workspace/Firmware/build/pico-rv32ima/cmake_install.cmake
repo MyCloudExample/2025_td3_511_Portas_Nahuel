@@ -1,4 +1,4 @@
-# Install script for directory: C:/Users/nahue/.pico-sdk/sdk/2.1.1/src/rp2_common/tinyusb
+# Install script for directory: C:/Users/nahue/Desktop/Accesos Directos/GitHUB/Tenicas Digitales III/2025_td3_511_Portas_Nahuel/1_ega/2_workspace/pico-rv32ima/pico-rv32ima
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -37,9 +37,17 @@ if(NOT DEFINED CMAKE_OBJDUMP)
   set(CMAKE_OBJDUMP "C:/Users/nahue/.pico-sdk/toolchain/14_2_Rel1/bin/arm-none-eabi-objdump.exe")
 endif()
 
+if(NOT CMAKE_INSTALL_LOCAL_ONLY)
+  # Include the install script for each subdirectory.
+  include("C:/Users/nahue/Desktop/Accesos Directos/GitHUB/Tenicas Digitales III/2025_td3_511_Portas_Nahuel/1_ega/2_workspace/Firmware/build/pico-rv32ima/petitfatfs/cmake_install.cmake")
+  include("C:/Users/nahue/Desktop/Accesos Directos/GitHUB/Tenicas Digitales III/2025_td3_511_Portas_Nahuel/1_ega/2_workspace/Firmware/build/pico-rv32ima/vga/cmake_install.cmake")
+  include("C:/Users/nahue/Desktop/Accesos Directos/GitHUB/Tenicas Digitales III/2025_td3_511_Portas_Nahuel/1_ega/2_workspace/Firmware/build/pico-rv32ima/ps2/cmake_install.cmake")
+
+endif()
+
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
 if(CMAKE_INSTALL_LOCAL_ONLY)
-  file(WRITE "C:/Users/nahue/Desktop/Accesos Directos/GitHUB/Tenicas Digitales III/2025_td3_511_Portas_Nahuel/1_ega/2_workspace/Firmware/build/pico-sdk/src/rp2_common/tinyusb/install_local_manifest.txt"
+  file(WRITE "C:/Users/nahue/Desktop/Accesos Directos/GitHUB/Tenicas Digitales III/2025_td3_511_Portas_Nahuel/1_ega/2_workspace/Firmware/build/pico-rv32ima/install_local_manifest.txt"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")
 endif()

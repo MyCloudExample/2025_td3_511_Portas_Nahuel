@@ -1,4 +1,4 @@
-# Install script for directory: C:/Users/nahue/Desktop/Accesos Directos/GitHUB/EGA/Software/EGA_TD3/lcd
+# Install script for directory: C:/Users/nahue/Desktop/Accesos Directos/GitHUB/Tenicas Digitales III/2025_td3_511_Portas_Nahuel/1_ega/2_workspace/lcd
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -40,6 +40,6 @@ endif()
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
 if(CMAKE_INSTALL_LOCAL_ONLY)
-  file(WRITE "C:/Users/nahue/Desktop/Accesos Directos/GitHUB/EGA/Software/EGA_TD3/Firmware/build/lcd/install_local_manifest.txt"
+  file(WRITE "C:/Users/nahue/Desktop/Accesos Directos/GitHUB/Tenicas Digitales III/2025_td3_511_Portas_Nahuel/1_ega/2_workspace/Firmware/build/lcd/install_local_manifest.txt"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")
 endif()
