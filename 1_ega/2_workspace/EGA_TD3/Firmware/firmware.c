@@ -221,12 +221,12 @@ void guardar_sd (const char *cadena)
 
         // Se abre el archivo y se escribe en el archivo
         fr = f_open(&fil, filename, FA_OPEN_APPEND | FA_WRITE);
-        
         if (FR_OK != fr && FR_EXIST != fr) 
         {
             panic("f_open(%s) error: %s (%d)\n", filename, FRESULT_str(fr), fr);
         }
         if (f_printf(&fil, cadena) < 0) 
+        if (f_printf(&fil, buffer1) < 0) 
         {
             printf("Escritura fallida de buffer1\n");
         }
