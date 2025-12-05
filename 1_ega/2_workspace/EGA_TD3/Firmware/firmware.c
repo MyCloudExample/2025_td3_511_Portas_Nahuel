@@ -59,7 +59,7 @@
 #define KI 40.0f             // 3.6Elimina error en regimen permanente, si es muy grande la respuesta sera lenta y existira overshot
 #define KD 50.0f             // 2.5Amortigua las oscilaciones, si es muy alto provocara oscilacion ya que amplifica el ruido
 #define MIN_PWM 1800        // Mínimo absoluto
-#define MAX_PWM 4000        // Máximo seguro
+#define MAX_PWM 4000        // Máximo absoluto seguro
 #define DT      0.03f       //Factor para ajustar el tiempo de muestreo
 /*----------------------------------------------------------------------------------------------------------------------------------*/
 /*----------------------------------------VARAIBLES DE RPOGRAMA, COLAS Y SEMAFOROS--------------------------------------------------*/
